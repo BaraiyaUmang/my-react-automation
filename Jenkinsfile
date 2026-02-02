@@ -4,15 +4,15 @@ pipeline {
     stages {
         stage('Pull Code') {
             steps {
-                // Wipes the workspace to prevent Git 'not in a directory' errors
-                deleteDir() 
+                // Cleans up any leftover files from previous failed builds
+                deleteDir()
                 checkout scm
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                // Builds your image using the Dockerfile we just fixed
+                // Build the image using the Dockerfile in your folder
                 sh 'docker build -t my-react-app .'
             }
         }
@@ -20,14 +20,23 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    // Stop and remove old versions so the name 'react-container' is free
+                    // 1. Force stop and remove the old container so the name is free
                     sh 'docker stop react-container || true'
                     sh 'docker rm react-container || true'
                     
-                    // Run the container mapping the Vite port 5173
+                    // 2. Start the new container on port 5173
                     sh 'docker run -d --name react-container -p 5173:5173 my-react-app'
                 }
             }
+        }
+    }
+    
+    post {
+        success {
+            echo 'Deployment successful! Visit http://localhost:5173'
+        }
+        failure {
+            echo 'Build failed. Check the console output above for errors.'
         }
     }
 }

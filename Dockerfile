@@ -1,9 +1,9 @@
 FROM node:22-alpine
 WORKDIR /app
 COPY package*.json ./
-RUN npm install 
-# This line is crucial—it copies your 'src' and other files
+RUN npm install
+# THIS LINE COPIES YOUR ACTUAL CODE. WITHOUT THIS, IT CRASHES.
 COPY . . 
 EXPOSE 5173
-# Vite requires --host to accept external connections
+# VITE NEEDS --host TO WORK IN DOCKER.
 CMD ["npm", "run", "dev", "--", "--host"]
